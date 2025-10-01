@@ -9,9 +9,6 @@ No. Because this project is open-source. And everyone can see the code. Sometime
 * This project is open-source
 * It can sometimes fake flag.
 
-Preview the gif below to get a quick demo of github.dev in action.
-
-![github dev](https://user-images.githubusercontent.com/856858/130119109-4769f2d7-9027-4bc4-a38c-10f297499e8f.gif)
 
 # How to start the program?
 

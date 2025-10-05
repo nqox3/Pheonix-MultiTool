@@ -14,7 +14,6 @@
 // Если у вас есть вопросы, свяжитесь со мной в Discord: portexploit
 // Приятного просмотра :)
 
-
 package main
 
 import (
@@ -153,13 +152,76 @@ func webhookSender() {
 	}
 }
 
+func telegramBotSender() {
+	fmt.Println("TELEGRAM BOT SENDER")
+	token := input("Bot Token: ")
+	chatID := input("Chat ID: ")
+	message := input("Message: ")
+
+	spam := strings.ToLower(input("Send multiple messages? (y/n): "))
+
+	apiURL := fmt.Sprintf("https://api.telegram.org/bot%s/sendMessage", token)
+
+	// Create results directory and log file
+	dir := createResultDir("telegram")
+	logFile := filepath.Join(dir, "log.txt")
+
+	if spam == "y" {
+		countStr := input("How many times to send: ")
+		count, _ := strconv.Atoi(countStr)
+
+		delayStr := input("Delay between messages (seconds): ")
+		delay, _ := strconv.ParseFloat(delayStr, 64)
+
+		for i := 1; i <= count; i++ {
+			payload := map[string]string{
+				"chat_id": chatID,
+				"text":    message,
+			}
+			payloadBytes, _ := json.Marshal(payload)
+			resp, err := http.Post(apiURL, "application/json", bytes.NewBuffer(payloadBytes))
+			entry := fmt.Sprintf("[%d/%d] Sent: %s\n", i, count, message)
+			if err != nil {
+				entry = fmt.Sprintf("[%d/%d] ERROR sending\n", i, count)
+			} else {
+				resp.Body.Close()
+			}
+			f, _ := os.OpenFile(logFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+			f.WriteString(entry)
+			f.Close()
+
+			fmt.Print(entry)
+			time.Sleep(time.Duration(delay * float64(time.Second)))
+		}
+		fmt.Println("Spam completed! Logs saved to:", logFile)
+	} else {
+		payload := map[string]string{
+			"chat_id": chatID,
+			"text":    message,
+		}
+		payloadBytes, _ := json.Marshal(payload)
+		resp, err := http.Post(apiURL, "application/json", bytes.NewBuffer(payloadBytes))
+		entry := fmt.Sprintf("[Single] Message: %s\n", message)
+		if err != nil {
+			entry = "[Single] ERROR sending message\n"
+		} else {
+			resp.Body.Close()
+		}
+		os.WriteFile(logFile, []byte(entry), 0644)
+		fmt.Println(entry)
+		fmt.Println("Saved log to:", logFile)
+		input("Press enter to return...")
+	}
+}
+
 func main() {
 	for {
 		fmt.Println(logo)
 		fmt.Println("[1] Webhook Sender")
 		fmt.Println("[2] IP Info")
-		fmt.Println("[3] ID Lookup [NOT WORKING]")
-		fmt.Println("[4] Server Raid [NOT WORKING]")
+		fmt.Println("[3] Telegram Bot Sender")
+		fmt.Println("[4] ID Lookup [NOT WORKING]")
+		fmt.Println("[5] Server Raid [NOT WORKING]")
 
 		choice := input("Option: ")
 
@@ -168,6 +230,8 @@ func main() {
 			webhookSender()
 		case "2":
 			ipLookup()
+		case "3":
+			telegramBotSender()
 		default:
 			fmt.Println("Invalid or not implemented.")
 			time.Sleep(1 * time.Second)

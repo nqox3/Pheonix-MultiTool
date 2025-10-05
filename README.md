@@ -23,3 +23,5 @@ To start the program you need first open the exe file and choose a option.
 If the program is stopped working or crashes you can open issue and write your problem.
 
 # dm me if need: portexploit
+
+This Project under GPL License.
